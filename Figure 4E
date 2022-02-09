@@ -1,0 +1,18 @@
+library(tidyverse)
+library(scales)
+library(readxl)
+
+RNAseq <- read_excel("Desktop/Figure4E.xlsx")
+
+RNAseq$Correlate <- factor(RNAseq$Correlate, levels = unique(RNAseq$Correlate))
+
+RNAseq$Signature <- factor(RNAseq$Signature,levels = rev(unique(RNAseq$Signature)))
+
+ggplot(data = RNAseq) + 
+    geom_point(mapping = aes(y = Signature, x = Correlate, fill = NES, size = NOM, color = ifelse(FDR<=0.25,"black","white")), shape=21, stroke = 1.5) + 
+    scale_color_manual(labels = c("<=0.25",">0.25"), values = c("black","white"), name = "adjusted p-value") +
+    scale_fill_gradient2(low = "blue", high = "red", midpoint = 0, limits = c(-2.5,2.5), breaks = c(-2, -1, 0, 1, 2), name = "NES") +
+    scale_radius(range = c(15,1), trans = "log10", limits = c(0.00001, 1),breaks = c(0.0001, 0.001, 0.01, 0.05), name = "p-value", labels = comma_format(accuracy = 0.0001)) + 
+    labs(x = "", y = "PBMC RNA signatures", face = "plain") +
+    theme(axis.title.x = element_text(color="black", size=14, face="plain"),axis.title.y = element_text(color="black", size=14, face="plain"), axis.text.x = element_text(angle = 0, vjust = 1, hjust=.5, color = "black", face = "plain", size = 14), axis.text.y = element_text(color = "black", face = "italic", size = 12), legend.text=element_text(size=12), legend.title=element_text(size=14)) +
+    annotate("point", shape = 4, size = 8, stroke = 2)
